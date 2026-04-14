@@ -476,7 +476,35 @@ namespace dll
 		bool in_view_port(FRECT what)const;
 	};
 
+	class OCEAN_API HERO :public PROTON
+	{
+	private:
+		float _speed{ 2.0f };
 
+		int attack_delay = 40;
+		int max_attack_delay = 40;
+
+		int frame = 0;
+		int max_frames = 6;
+		int frame_delay = 12;
+		int max_frame_delay = 12;
+
+		HERO(float _sx, float _sy);
+
+	public:
+		int lifes = 200;
+		int damage = 10;
+		int armor = 5;
+
+		void move(float ex, float ey, float gear);
+
+		int attack();
+		int get_frame();
+
+		void Release();
+
+		static HERO* create(float sx, float sy);
+	};
 
 
 

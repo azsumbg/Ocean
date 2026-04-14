@@ -304,3 +304,157 @@ bool dll::FIELD::in_view_port(FRECT what)const
 }
 
 ////////////////////////////////////////
+
+// HERO class *************************
+
+dll::HERO::HERO(float _sx, float _sy) :PROTON(_sx, _sy)
+{
+	new_dims(150.0f, 140.0f);
+}
+
+void dll::HERO::move(float ex, float ey, float gear)
+{
+	float my_speed = _speed + gear / 10.0f;
+
+	set_path(ex, ey);
+
+	if (ex > center.x)
+	{
+		if (ey > center.y)dir = dirs::down_right;
+		else if (ey < center.y)dir = dirs::up_right;
+		else dir = dirs::right;
+	}
+	else if (ex < center.x)
+	{
+		if (ey > center.y)dir = dirs::down_left;
+		else if (ey < center.y)dir = dirs::up_left;
+		else dir = dirs::left;
+	}
+	else
+	{
+		if (ey > center.y)dir = dirs::down;
+		else dir = dirs::up;
+	}
+
+	if (hor_dir)
+	{
+		if (move_ex > move_sx)
+		{
+			if (end.x + my_speed <= scr_width)
+			{
+				start.x += my_speed;
+				set_edges();
+			}
+		}
+		else if (move_ex < move_sx)
+		{
+			if (start.x - my_speed >= 0)
+			{
+				start.x -= my_speed;
+				set_edges();
+			}
+		}
+	}
+	else if (ver_dir)
+	{
+		if (move_ey > move_sy)
+		{
+			if (end.y + my_speed <= ground)
+			{
+				start.y += my_speed;
+				set_edges();
+			}
+		}
+		else if (move_ey < move_sy)
+		{
+			if (start.y - my_speed >= sky)
+			{
+				start.y -= my_speed;
+				set_edges();
+			}
+		}
+	}
+	else
+	{
+		if (move_ex > move_sx)
+		{
+			if (end.x + my_speed <= scr_width)
+			{
+				start.x += my_speed;
+				start.y = start.x * slope + intercept;
+				set_edges();
+			}
+		}
+		else if (move_ex < move_sx)
+		{
+			if (start.x - my_speed >= 0)
+			{
+				start.x -= my_speed;
+				start.y = start.x * slope + intercept;
+				set_edges();
+			}
+		}
+	}
+
+	if (start.y < sky)
+	{
+		start.y = sky;
+		set_edges();
+	}
+	if (end.y > ground)
+	{
+		start.y = ground - _height;
+		set_edges();
+	}
+	if (start.x < 0)
+	{
+		start.x = 0;
+		set_edges();
+	}
+	if (end.x > scr_width)
+	{
+		start.x = scr_width - _width;
+		set_edges();
+	}
+}
+
+int dll::HERO::attack()
+{
+	--attack_delay;
+	if (attack_delay <= 0)
+	{
+		attack_delay = max_attack_delay;
+		return damage;
+	}
+
+	return 0;
+}
+int dll::HERO::get_frame()
+{
+	--frame_delay;
+	if (frame_delay <= 0)
+	{
+		frame_delay = max_frame_delay;
+		++frame;
+		if (frame > max_frames)frame = 0;
+	}
+
+	return frame;
+}
+
+void dll::HERO::Release()
+{
+	delete this;
+}
+
+dll::HERO* dll::HERO::create(float sx, float sy)
+{
+	HERO* ret{ nullptr };
+
+	ret = new HERO(sx, sy);
+
+	return ret;
+}
+
+
+///////////////////////////////////////

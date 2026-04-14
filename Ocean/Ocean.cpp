@@ -199,3 +199,108 @@ float dll::PROTON::get_target_y()const
 }
 
 /////////////////////////////////////////
+
+// FIELD class *************************
+
+dll::FIELD::FIELD()
+{
+	float x_pos = -scr_width;
+	float y_pos = -scr_height;
+
+	for (int rows = 0; rows < 3; ++rows)
+	{
+		for (int cols = 0; cols < 3; cols)
+		{
+			ocean_tiles[rows][cols].left = x_pos;
+			ocean_tiles[rows][cols].right = x_pos + scr_width;
+			ocean_tiles[rows][cols].up = y_pos;
+			ocean_tiles[rows][cols].down = y_pos + scr_height;
+
+			x_pos += scr_width;
+		}
+
+		y_pos += scr_height;
+	}
+}
+
+void dll::FIELD::move_ocean(dirs to_where, float gear)
+{
+	float my_speed = _speed + gear / 10.0f;
+
+	switch (to_where)
+	{
+	case dirs::up:
+		if (ocean_tiles[2][0].down - my_speed >= scr_height)
+		{
+			for (int rows = 0; rows < 3; ++rows)
+			{
+				for (int cols = 0; cols < 3; ++cols)
+				{
+					ocean_tiles[rows][cols].up -= my_speed;
+					ocean_tiles[rows][cols].down -= my_speed;
+				}
+			}
+		}
+		break;
+
+	case dirs::down:
+		if (ocean_tiles[0][0].up + my_speed <= sky)
+		{
+			for (int rows = 0; rows < 3; ++rows)
+			{
+				for (int cols = 0; cols < 3; ++cols)
+				{
+					ocean_tiles[rows][cols].up += my_speed;
+					ocean_tiles[rows][cols].down += my_speed;
+				}
+			}
+		}
+		break;
+
+	case dirs::left:
+		if (ocean_tiles[0][2].right - my_speed >= scr_width)
+		{
+			for (int rows = 0; rows < 3; ++rows)
+			{
+				for (int cols = 0; cols < 3; ++cols)
+				{
+					ocean_tiles[rows][cols].left -= my_speed;
+					ocean_tiles[rows][cols].right -= my_speed;
+				}
+			}
+		}
+		break;
+
+	case dirs::right:
+		if (ocean_tiles[0][0].left + my_speed <= 0)
+		{
+			for (int rows = 0; rows < 3; ++rows)
+			{
+				for (int cols = 0; cols < 3; ++cols)
+				{
+					ocean_tiles[rows][cols].left += my_speed;
+					ocean_tiles[rows][cols].right += my_speed;
+				}
+			}
+		}
+		break;
+	}
+}
+
+bool dll::FIELD::in_view_port(int row, int col)const
+{
+	if (row < 0 || row > 2 || col < 0 || col > 2)return false;
+	else if (!(ocean_tiles[row][col].left >= _ViewPort.right || ocean_tiles[row][col].right <= _ViewPort.left
+		|| ocean_tiles[row][col].up >= _ViewPort.down || ocean_tiles[row][col].down <= _ViewPort.up))return true;
+	
+	return false;
+}
+bool dll::FIELD::in_view_port(FRECT what)const
+{
+	if (!(what.left >= _ViewPort.right || what.right <= _ViewPort.left
+		|| what.up >= _ViewPort.down || what.down <= _ViewPort.up))return true;
+
+	return false;
+}
+
+////////////////////////////////////////

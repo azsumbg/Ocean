@@ -77,8 +77,6 @@ struct OCEAN_API EXPLOSION
 	}
 };
 
-FRECT ViewPort{ 0, sky, scr_width, ground };
-
 namespace dll
 {
 	class OCEAN_API EXCEPTION
@@ -460,6 +458,23 @@ namespace dll
 		float get_target_y()const;
 	};
 
+	class OCEAN_API FIELD
+	{
+	private:
+		float _speed = nature_speed;
+
+		FRECT _ViewPort{ 0, sky, scr_width, scr_height };
+
+	public:
+		FRECT ocean_tiles[3][3]{};
+
+		FIELD();
+
+		void move_ocean(dirs to_where, float gear);
+
+		bool in_view_port(int row, int col)const;
+		bool in_view_port(FRECT what)const;
+	};
 
 
 

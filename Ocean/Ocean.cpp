@@ -456,5 +456,4 @@ dll::HERO* dll::HERO::create(float sx, float sy)
 	return ret;
 }
 
-
 ///////////////////////////////////////

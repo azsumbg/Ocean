@@ -22,8 +22,9 @@ constexpr int BAG_UNKNOWN_ERR{ 11004 };
 constexpr float nature_speed{ 1.5f };
 
 enum class dirs { left = 0, right = 1, up = 2, down = 3, up_left = 4, up_right = 5, down_left = 6, down_right = 7, stop = 8 };
-enum class rocks { big_rock = 0, mid_rock = 1, small_rock = 2, island = 3 };
+enum class obstacles { big_rock = 0, mid_rock = 1, small_rock = 2, island = 3, swirl = 4 };
 enum class evils { evil1 = 0, evil2 = 1, evil3 = 2, evil4 = 3 };
+enum class bonus { gold = 0, gun = 1, armor = 2 };
 
 dirs nature_dir{ dirs::stop };
 
@@ -42,6 +43,11 @@ struct OCEAN_API FRECT
 
 struct OCEAN_API FADE_BONUS
 {
+	bonus type{ bonus::gold };
+
+	float sx{ 0 };
+	float sy{ 0 };
+
 	float opacity = 1.0f;
 	int delay = 8;
 
@@ -57,6 +63,7 @@ struct OCEAN_API FADE_BONUS
 		return opacity;
 	}
 };
+
 struct OCEAN_API EXPLOSION
 {
 	int frame = 0;

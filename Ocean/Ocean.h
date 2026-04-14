@@ -517,5 +517,13 @@ namespace dll
 
 
 
+	// FUNCTIONS ****************************************
 
+	bool OCEAN_API Intersect(FRECT first, FRECT second);
+	bool OCEAN_API Intersect(FPOINT first_center, FPOINT second_center,float first_xrad,float second_xrad,
+		float first_yrad, float second_yrad);
+
+	float OCEAN_API Distance(FPOINT first, FPOINT second);
+
+	void OCEAN_API Sort(BAG<FPOINT>& bag, FPOINT ref_point);
 }

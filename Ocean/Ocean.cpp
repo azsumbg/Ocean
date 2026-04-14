@@ -457,3 +457,68 @@ dll::HERO* dll::HERO::create(float sx, float sy)
 }
 
 ///////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// FUNCTIONS ****************************************
+
+bool dll::Intersect(FRECT first, FRECT second)
+{
+	if (!(first.left > second.right || first.right<second.left || first.up>second.down || first.down < second.up))return true;
+
+	return false;
+}
+bool dll::Intersect(FPOINT first_center, FPOINT second_center, float first_xrad, float second_xrad,
+	float first_yrad, float second_yrad)
+{
+	if (abs(second_center.x - first_center.x) <= first_xrad + second_xrad &&
+		abs(second_center.y - first_center.y) <= first_yrad + second_yrad)return true;
+
+	return false;
+}
+
+float dll::Distance(FPOINT first, FPOINT second)
+{
+	float a{ (float)(pow(abs(second.x - first.x), 2)) };
+	float b{ (float)(pow(abs(second.y - first.y), 2)) };
+
+	return (float)(sqrt(a + b));
+}
+
+void dll::Sort(BAG<FPOINT>& bag, FPOINT ref_point)
+{
+	if (bag.size() < 2)return;
+	else
+	{
+		bool ok = false;
+
+		while (!ok)
+		{
+			ok = true;
+
+			for (size_t count = 0; count < bag.size() - 1; ++count)
+			{
+				if (Distance(bag[count], ref_point) > Distance(bag[count + 1], ref_point))
+				{
+					FPOINT temp{ bag[count] };
+
+					bag[count] = bag[count + 1];
+					bag[count] = temp;
+					ok = false;
+				}
+			}
+		}
+	}
+}

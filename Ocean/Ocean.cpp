@@ -312,7 +312,25 @@ dll::HERO::HERO(float _sx, float _sy) :PROTON(_sx, _sy)
 	new_dims(150.0f, 140.0f);
 }
 
-void dll::HERO::move(float ex, float ey, float gear)
+bool dll::HERO::obstacle_bumped(BAG<FRECT>& obstacles)
+{
+	if (obstacles.empty())return false;
+	else if (obstacles.size() == 1)
+	{
+		if (Intersect(FRECT{ start.x,start.y,end.x,end.y }, obstacles[0]))return true;
+	}
+	else
+	{
+		for (size_t i = 0; i < obstacles.size(); ++i)
+		{
+			if (Intersect(FRECT{ start.x,start.y,end.x,end.y }, obstacles[i]))return true;
+		}
+	}
+
+	return false;
+}
+
+void dll::HERO::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
 {
 	float my_speed = _speed + gear / 10.0f;
 
@@ -344,6 +362,12 @@ void dll::HERO::move(float ex, float ey, float gear)
 			{
 				start.x += my_speed;
 				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x -= my_speed;
+					set_edges();
+				}
 			}
 		}
 		else if (move_ex < move_sx)
@@ -352,6 +376,12 @@ void dll::HERO::move(float ex, float ey, float gear)
 			{
 				start.x -= my_speed;
 				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x += my_speed;
+					set_edges();
+				}
 			}
 		}
 	}
@@ -363,6 +393,12 @@ void dll::HERO::move(float ex, float ey, float gear)
 			{
 				start.y += my_speed;
 				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.y -= my_speed;
+					set_edges();
+				}
 			}
 		}
 		else if (move_ey < move_sy)
@@ -371,6 +407,12 @@ void dll::HERO::move(float ex, float ey, float gear)
 			{
 				start.y -= my_speed;
 				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.y += my_speed;
+					set_edges();
+				}
 			}
 		}
 	}
@@ -383,6 +425,13 @@ void dll::HERO::move(float ex, float ey, float gear)
 				start.x += my_speed;
 				start.y = start.x * slope + intercept;
 				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x -= my_speed;
+					start.y = start.x * slope + intercept;
+					set_edges();
+				}
 			}
 		}
 		else if (move_ex < move_sx)
@@ -392,6 +441,13 @@ void dll::HERO::move(float ex, float ey, float gear)
 				start.x -= my_speed;
 				start.y = start.x * slope + intercept;
 				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x += my_speed;
+					start.y = start.x * slope + intercept;
+					set_edges();
+				}
 			}
 		}
 	}

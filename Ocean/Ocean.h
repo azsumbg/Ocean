@@ -86,6 +86,19 @@ struct OCEAN_API EXPLOSION
 
 namespace dll
 {
+	// FUNCTIONS ****************************************
+
+	bool OCEAN_API Intersect(FRECT first, FRECT second);
+	bool OCEAN_API Intersect(FPOINT first_center, FPOINT second_center, float first_xrad, float second_xrad,
+		float first_yrad, float second_yrad);
+
+	float OCEAN_API Distance(FPOINT first, FPOINT second);
+
+
+	/////////////////////////////////////////////////////////
+
+	// CLASSES *********************************************
+
 	class OCEAN_API EXCEPTION
 	{
 	private:
@@ -503,7 +516,9 @@ namespace dll
 		int damage = 10;
 		int armor = 5;
 
-		void move(float ex, float ey, float gear);
+		bool obstacle_bumped(BAG<FRECT>& obstacles);
+
+		void move(float ex, float ey, float gear, BAG<FRECT>& field_obst);
 
 		int attack();
 		int get_frame();
@@ -513,17 +528,9 @@ namespace dll
 		static HERO* create(float sx, float sy);
 	};
 
+	/////////////////////////////////////////////////////////
 
-
-
-
-	// FUNCTIONS ****************************************
-
-	bool OCEAN_API Intersect(FRECT first, FRECT second);
-	bool OCEAN_API Intersect(FPOINT first_center, FPOINT second_center,float first_xrad,float second_xrad,
-		float first_yrad, float second_yrad);
-
-	float OCEAN_API Distance(FPOINT first, FPOINT second);
+	// SORT FUNCTION *************************************
 
 	void OCEAN_API Sort(BAG<FPOINT>& bag, FPOINT ref_point);
 }

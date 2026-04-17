@@ -573,6 +573,23 @@ namespace dll
 		static BOAT* create(float sx, float sy, bool hero = false);
 	};
 
+	class OCEAN_API SHOT :public PROTON
+	{
+	private:
+		float _speed{ 5.0f };
+
+		SHOT(float _sx, float _sy, float _ex, float _ey);
+
+	public:
+		int damage{ 40 };
+
+		bool move(float gear);
+
+		void Release();
+
+		static SHOT* create(float sx, float sy, float ex, float ey);
+	};
+
 	/////////////////////////////////////////////////////////
 
 	// SORT FUNCTION *************************************

@@ -817,6 +817,94 @@ dll::BOAT* dll::BOAT::create(float sx, float sy, bool hero)
 
 /////////////////////////////////////////
 
+// SHOT class ***************************
+
+dll::SHOT::SHOT(float _sx, float _sy, float _ex, float _ey) :PROTON(_sx, _sy, 20.0f, 20.0f)
+{
+	set_path(_ex, _ey);
+}
+
+bool dll::SHOT::move(float gear)
+{
+	float my_speed = _speed + gear / 10.0f;
+
+	if (ver_dir)
+	{
+		if (move_ey < move_sy)
+		{
+			start.y -= my_speed;
+			set_edges();
+
+			if (start.y < move_ey || start.y <= sky)return false;
+		}
+		else if (move_ey > move_sy)
+		{
+			start.y += my_speed;
+			set_edges();
+
+			if (end.y > move_ey || end.y >= ground)return false;
+		}
+		else return false;
+	}
+	else if (hor_dir)
+	{
+		if (move_ex < move_sx)
+		{
+			start.x -= my_speed;
+			set_edges();
+
+			if (start.x < move_ex || start.x <= 0)return false;
+		}
+		else if (move_ex > move_sx)
+		{
+			start.x += my_speed;
+			set_edges();
+
+			if (end.x > move_ex || end.x >= scr_width)return false;
+		}
+		else return false;
+	}
+	else
+	{
+		if (move_ex < move_sx)
+		{
+			start.x -= my_speed;
+			start.y = start.x * slope + intercept;
+			set_edges();
+
+			if (start.x < move_ex || start.x <= 0 || start.y < move_ey || start.y <= sky
+				|| end.y > move_ey || end.y >= ground)return false;
+		}
+		else if (move_ex > move_sx)
+		{
+			start.x += my_speed;
+			start.y = start.x * slope + intercept;
+			set_edges();
+
+			if (end.x > move_ex || end.x >= scr_width || start.y < move_ey || start.y <= sky
+				|| end.y > move_ey || end.y >= ground)return false;
+		}
+		else return false;
+	}
+
+	return true;
+}
+
+void dll::SHOT::Release()
+{
+	delete this;
+}
+
+dll::SHOT* dll::SHOT::create(float sx, float sy, float ex, float ey)
+{
+	SHOT* ret{ nullptr };
+	
+	ret = new SHOT(sx, sy, ex, ey);
+
+	return ret;
+}
+
+////////////////////////////////////////
 
 
 

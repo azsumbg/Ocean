@@ -628,9 +628,194 @@ dll::OBSTACLE* dll::OBSTACLE::create(obstacles what, float sx, float sy)
 
 /////////////////////////////////////////
 
+// BOAT class ***************************
 
+dll::BOAT::BOAT(float _sx, float _sy, bool _hero) :PROTON(_sx, _sy)
+{
+	new_dims(50.0f, 45.0f);
+	dir = dirs::up;
 
+	hero_boat = _hero;
+}
 
+void dll::BOAT::Release() 
+{
+	delete this;
+}
+
+bool dll::BOAT::obstacle_bumped(BAG<FRECT>& obstacles)
+{
+	if (obstacles.empty())return false;
+	else if (obstacles.size() == 1)
+	{
+		if (Intersect(FRECT{ start.x,start.y,end.x,end.y }, obstacles[0]))return true;
+	}
+	else
+	{
+		for (size_t i = 0; i < obstacles.size(); ++i)
+		{
+			if (Intersect(FRECT{ start.x,start.y,end.x,end.y }, obstacles[i]))return true;
+		}
+	}
+
+	return false;
+}
+
+void dll::BOAT::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
+{
+	float my_speed = _speed + gear / 10.0f;
+
+	set_path(ex, ey);
+
+	if (ex > center.x)
+	{
+		if (ey > center.y)dir = dirs::down_right;
+		else if (ey < center.y)dir = dirs::up_right;
+		else dir = dirs::right;
+	}
+	else if (ex < center.x)
+	{
+		if (ey > center.y)dir = dirs::down_left;
+		else if (ey < center.y)dir = dirs::up_left;
+		else dir = dirs::left;
+	}
+	else
+	{
+		if (ey > center.y)dir = dirs::down;
+		else dir = dirs::up;
+	}
+
+	if (hor_dir)
+	{
+		if (move_ex > move_sx)
+		{
+			if (end.x + my_speed <= scr_width)
+			{
+				start.x += my_speed;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x -= my_speed;
+					set_edges();
+				}
+			}
+		}
+		else if (move_ex < move_sx)
+		{
+			if (start.x - my_speed >= 0)
+			{
+				start.x -= my_speed;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x += my_speed;
+					set_edges();
+				}
+			}
+		}
+	}
+	else if (ver_dir)
+	{
+		if (move_ey > move_sy)
+		{
+			if (end.y + my_speed <= ground)
+			{
+				start.y += my_speed;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.y -= my_speed;
+					set_edges();
+				}
+			}
+		}
+		else if (move_ey < move_sy)
+		{
+			if (start.y - my_speed >= sky)
+			{
+				start.y -= my_speed;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.y += my_speed;
+					set_edges();
+				}
+			}
+		}
+	}
+	else
+	{
+		if (move_ex > move_sx)
+		{
+			if (end.x + my_speed <= scr_width)
+			{
+				start.x += my_speed;
+				start.y = start.x * slope + intercept;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x -= my_speed;
+					start.y = start.x * slope + intercept;
+					set_edges();
+				}
+			}
+		}
+		else if (move_ex < move_sx)
+		{
+			if (start.x - my_speed >= 0)
+			{
+				start.x -= my_speed;
+				start.y = start.x * slope + intercept;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x += my_speed;
+					start.y = start.x * slope + intercept;
+					set_edges();
+				}
+			}
+		}
+	}
+
+	if (start.y < sky)
+	{
+		start.y = sky;
+		set_edges();
+	}
+	if (end.y > ground)
+	{
+		start.y = ground - _height;
+		set_edges();
+	}
+	if (start.x < 0)
+	{
+		start.x = 0;
+		set_edges();
+	}
+	if (end.x > scr_width)
+	{
+		start.x = scr_width - _width;
+		set_edges();
+	}
+	
+}
+
+dll::BOAT* dll::BOAT::create(float sx, float sy, bool hero)
+{
+	BOAT* ret{ nullptr };
+	
+	ret = new BOAT(sx, sy, hero);
+
+	return ret;
+}
+
+/////////////////////////////////////////
 
 
 

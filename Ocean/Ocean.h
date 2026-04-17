@@ -553,6 +553,26 @@ namespace dll
 		static OBSTACLE* create(obstacles what, float sx, float sy);
 	};
 
+	class OCEAN_API BOAT :public PROTON
+	{
+	private:
+		float _speed{ 1.5f };
+
+		BOAT(float _sx, float _sy, bool _hero);
+
+	public:
+		bool hero_boat{ false };
+		int lifes = 50;
+
+		bool obstacle_bumped(BAG<FRECT>& obstacles);
+
+		void Release();
+
+		void move(float ex, float ey, float gear, BAG<FRECT>& field_obst);
+
+		static BOAT* create(float sx, float sy, bool hero = false);
+	};
+
 	/////////////////////////////////////////////////////////
 
 	// SORT FUNCTION *************************************

@@ -514,9 +514,119 @@ dll::HERO* dll::HERO::create(float sx, float sy)
 
 ///////////////////////////////////////
 
+// OBSTACLE class *********************
 
+dll::OBSTACLE::OBSTACLE(obstacles _what, float _sx, float _sy) :PROTON(_sx, _sy)
+{
+	type = _what;
 
+	switch (type)
+	{
+	case obstacles::big_rock:
+		new_dims(200.0f, 244.0f);
+		break;
 
+	case obstacles::mid_rock:
+		new_dims(150.0f, 128.0f);
+		break;
+
+	case obstacles::small_rock:
+		new_dims(107.0f, 120.0f);
+		break;
+
+	case obstacles::port:
+		new_dims(199.0f, 167.0f);
+		break;
+
+	case obstacles::island:
+		new_dims(300.0f, 191.0f);
+		break;
+	}
+
+	my_rect.left = start.x;
+	my_rect.right = end.x;
+	my_rect.up = start.y;
+	my_rect.down = end.y;
+}
+
+void dll::OBSTACLE::move(dirs to_where, float gear)
+{
+	float my_speed = _speed + gear / 10.0f;
+	
+	switch (to_where)
+	{
+	case dirs::up:
+		if (my_rect.up - my_speed >= -scr_height)
+		{
+			start.y -= my_speed;
+			set_edges();
+		}
+		break;
+
+	case dirs::down:
+		if (my_rect.down + my_speed <= 2.0f * scr_height)
+		{
+			start.y += my_speed;
+			set_edges();
+		}
+		break;
+
+	case dirs::left:
+		if (my_rect.left - my_speed >= -scr_width)
+		{
+			start.x -= my_speed;
+			set_edges();
+		}
+		break;
+
+	case dirs::right:
+		if (my_rect.right + my_speed >= 2.0f * scr_width)
+		{
+			start.x += my_speed;
+			set_edges();
+		}
+		break;
+	}
+
+	my_rect.left = start.x;
+	my_rect.right = end.x;
+	my_rect.up = start.y;
+	my_rect.down = end.y;
+}
+
+int dll::OBSTACLE::get_frame()
+{
+	if (type != obstacles::swirl)return 0;
+
+	--frame_delay;
+	if (frame_delay <= 0)
+	{
+		frame_delay = 6;
+		++frame;
+		if (frame > max_frames)frame = 0;
+	}
+
+	return frame;
+}
+
+bool dll::OBSTACLE::in_view_port(FRECT what)const
+{
+	if (!(what.left >= _ViewPort.right || what.right <= _ViewPort.left
+		|| what.up >= _ViewPort.down || what.down <= _ViewPort.up))return true;
+
+	return false;
+}
+
+dll::OBSTACLE* dll::OBSTACLE::create(obstacles what, float sx, float sy)
+{
+	OBSTACLE* ret{ nullptr };
+
+	ret = new OBSTACLE(what, sx, sy);
+
+	return ret;
+}
+
+/////////////////////////////////////////
 
 
 

@@ -22,7 +22,7 @@ constexpr int BAG_UNKNOWN_ERR{ 11004 };
 constexpr float nature_speed{ 1.5f };
 
 enum class dirs { left = 0, right = 1, up = 2, down = 3, up_left = 4, up_right = 5, down_left = 6, down_right = 7, stop = 8 };
-enum class obstacles { big_rock = 0, mid_rock = 1, small_rock = 2, island = 3, swirl = 4 };
+enum class obstacles { big_rock = 0, mid_rock = 1, small_rock = 2, island = 3, swirl = 4, port = 5 };
 enum class evils { evil1 = 0, evil2 = 1, evil3 = 2, evil4 = 3 };
 enum class bonus { gold = 0, gun = 1, armor = 2 };
 
@@ -526,6 +526,31 @@ namespace dll
 		void Release();
 
 		static HERO* create(float sx, float sy);
+	};
+
+	class OCEAN_API OBSTACLE : public PROTON
+	{
+	private:
+		float _speed = nature_speed;
+		FRECT _ViewPort{ 0, sky, scr_width, scr_height };
+
+		int frame = 0;
+		int frame_delay = 6;
+		int max_frames = 11;
+
+		OBSTACLE(obstacles _what, float _sx, float _sy);
+
+	public:
+		obstacles type{ obstacles::small_rock };
+		FRECT my_rect{};
+		
+		void move(dirs to_where, float gear);
+
+		int get_frame();
+
+		bool in_view_port(FRECT what)const;
+
+		static OBSTACLE* create(obstacles what, float sx, float sy);
 	};
 
 	/////////////////////////////////////////////////////////

@@ -26,6 +26,8 @@ enum class obstacles { big_rock = 0, mid_rock = 1, small_rock = 2, island = 3, s
 enum class evils { evil1 = 0, evil2 = 1, evil3 = 2, evil4 = 3 };
 enum class bonus { gold = 0, gun = 1, armor = 2 };
 
+enum class actions { stop = 0, move = 1, patrol = 2, shoot = 3, release_boat = 4, hero_spotted = 5 };
+
 dirs nature_dir{ dirs::stop };
 
 struct OCEAN_API FPOINT
@@ -51,7 +53,7 @@ struct OCEAN_API FADE_BONUS
 	float opacity = 1.0f;
 	int delay = 8;
 
-	int get_opacity()
+	float get_opacity()
 	{
 		--delay;
 		if (delay <= 0)
@@ -363,7 +365,7 @@ namespace dll
 			if (!mPtr)throw EXCEPTION(BAG_BAD_PTR);
 			else
 			{
-				if (index < 0 || index >= next_pos)throw EXCEPTION(BAG_BAD_ARG);
+				if (index < 0 || index >= next_pos)throw EXCEPTION(BAG_BAD_PARAM);
 
 				for (size_t count = index; count < next_pos - 1; ++count)mPtr[count] = mPtr[count + 1];
 
@@ -607,6 +609,7 @@ namespace dll
 
 	public:
 		evils type{ evils::evil1 };
+		actions current_action{ actions::patrol };
 
 		int lifes{ 0 };
 		int max_lifes{ 0 };
@@ -631,7 +634,9 @@ namespace dll
 
 	/////////////////////////////////////////////////////////
 
-	// SORT FUNCTION *************************************
+	// SORT AND AI FUNCTIONS *************************************
 
 	void OCEAN_API Sort(BAG<FPOINT>& bag, FPOINT ref_point);
+
+	actions OCEAN_API AINextMove(EVIL& my_unit, BAG<FPOINT>& ObstBag, BAG<FPOINT>& AssetBag, FPOINT hero_center, FPOINT treasure_center);
 }

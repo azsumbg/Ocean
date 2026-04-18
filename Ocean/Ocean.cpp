@@ -1018,6 +1018,8 @@ dll::EVIL::EVIL(evils _what, float _sx, float _sy) :PROTON(_sx, _sy)
 			set_path(start.x + 300.0f, sky);
 		}
 	}
+
+	max_lifes = lifes;
 }
 	
 bool dll::EVIL::obstacle_bumped(BAG<FRECT>& obstacles)
@@ -1370,8 +1372,6 @@ dll::EVIL* dll::EVIL::create(evils what, float sx, float sy)
 ////////////////////////////////////////
 
 
-
-
 // FUNCTIONS ****************************************
 
 bool dll::Intersect(FRECT first, FRECT second)
@@ -1421,4 +1421,131 @@ void dll::Sort(BAG<FPOINT>& bag, FPOINT ref_point)
 			}
 		}
 	}
+}
+
+actions dll::AINextMove(EVIL& my_unit, BAG<FPOINT>& ObstBag, BAG<FPOINT>& AssetBag, FPOINT hero_center, FPOINT treasure_center)
+{
+	actions ret = my_unit.current_action;
+
+	if (!AssetBag.empty())Sort(AssetBag, my_unit.center);
+
+	if (ret == actions::move)
+	{
+		float targ_x = my_unit.get_target_x();
+		float targ_y = my_unit.get_target_y();
+		
+		if ((my_unit.dir == dirs::left && targ_x >= my_unit.start.x) || (my_unit.dir == dirs::right && targ_x <= my_unit.end.x)
+			|| (my_unit.dir == dirs::up && targ_y >= my_unit.start.y) || (my_unit.dir == dirs::down && targ_y <= my_unit.end.y)
+			|| (my_unit.dir == dirs::up_left && targ_y >= my_unit.start.y && targ_x >= my_unit.start.x)
+			|| (my_unit.dir == dirs::up_right && targ_y >= my_unit.start.y && targ_x <= my_unit.end.x)
+			|| (my_unit.dir == dirs::down_left && targ_y <= my_unit.end.y && targ_x >= my_unit.start.x)
+			|| (my_unit.dir == dirs::down_right && targ_y <= my_unit.end.y && targ_x <= my_unit.end.x))
+			ret = actions::patrol;
+	}
+	else if (ret == actions::shoot && Distance(my_unit.center, hero_center) > my_unit.attack_range)
+	{
+		if(Distance(my_unit.center, hero_center) <= my_unit.view_range)
+		{
+			if (my_unit.lifes >= my_unit.max_lifes / 2)
+			{
+				my_unit.set_path(hero_center.x, hero_center.y);
+				ret = actions::hero_spotted;
+			}
+			else
+			{
+				if (hero_center.x > my_unit.center.x) my_unit.set_path(my_unit.center.x - 300.0f, my_unit.get_target_y());
+				else if (hero_center.x < my_unit.center.x) my_unit.set_path(my_unit.center.x + 300.0f, my_unit.get_target_y());
+				else
+				{
+					if (hero_center.y > my_unit.center.y) my_unit.set_path(my_unit.center.x, my_unit.get_target_y() - 300.0f);
+					else my_unit.set_path(my_unit.center.x, my_unit.get_target_y() + 300.0f);
+				}
+				ret = actions::move;
+			}
+		}
+		else
+		{
+			if (my_unit.start.x > scr_width / 2.0f)
+			{
+				if (my_unit.start.y < scr_height / 2.0f)
+				{
+					my_unit.dir = dirs::down_left;
+					my_unit.set_path(my_unit.start.x - 300.0f, ground);
+				}
+				else if (my_unit.start.y > scr_height / 2.0f)
+				{
+					my_unit.dir = dirs::up_left;
+					my_unit.set_path(my_unit.start.x - 300.0f, sky);
+				}
+				else
+				{
+					my_unit.dir = dirs::left;
+					my_unit.set_path(my_unit.start.x - 300.0f, my_unit.start.y);
+				}
+			}
+			else if (my_unit.start.x < scr_width / 2.0f)
+			{
+				if (my_unit.start.y < scr_height / 2.0f)
+				{
+					my_unit.dir = dirs::down_right;
+					my_unit.set_path(my_unit.start.x + 300.0f, ground);
+				}
+				else if (my_unit.start.y > scr_height / 2.0f)
+				{
+					my_unit.dir = dirs::up_right;
+					my_unit.set_path(my_unit.start.x - 300.0f, sky);
+				}
+				else
+				{
+					my_unit.dir = dirs::right;
+					my_unit.set_path(my_unit.start.x + 300.0f, my_unit.start.y);
+				}
+			}
+			else
+			{
+				if (my_unit.start.y < scr_height / 2.0f)
+				{
+					my_unit.dir = dirs::down_left;
+					my_unit.set_path(my_unit.start.x - 300.0f, ground);
+				}
+				else
+				{
+					my_unit.dir = dirs::up_right;
+					my_unit.set_path(my_unit.start.x + 300.0f, sky);
+				}
+			}
+		}
+
+		ret = actions::move;
+	}
+	else if (Distance(my_unit.center, hero_center) <= my_unit.attack_range)ret = actions::shoot;
+	else if (Distance(my_unit.center, hero_center) <= my_unit.view_range)
+	{
+		if (my_unit.lifes >= my_unit.max_lifes / 2)
+		{
+			my_unit.set_path(hero_center.x, hero_center.y);
+			ret = actions::hero_spotted;
+		}
+		else
+		{
+			if (hero_center.x > my_unit.center.x) my_unit.set_path(my_unit.center.x - 300.0f, my_unit.get_target_y());
+			else if (hero_center.x < my_unit.center.x) my_unit.set_path(my_unit.center.x + 300.0f, my_unit.get_target_y());
+			else
+			{
+				if (hero_center.y > my_unit.center.y) my_unit.set_path(my_unit.center.x, my_unit.get_target_y() - 300.0f);
+				else my_unit.set_path(my_unit.center.x, my_unit.get_target_y() + 300.0f);
+			}
+			ret = actions::move;
+		}
+	}
+	else if (!AssetBag.empty())
+	{
+		if (Distance(my_unit.center, AssetBag[0]) <= my_unit.view_range)
+		{
+			my_unit.set_path(AssetBag[0].x, AssetBag[0].y);
+			ret = actions::move;
+		}
+	}
+
+	return ret;
 }

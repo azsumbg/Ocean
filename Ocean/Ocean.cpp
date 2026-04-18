@@ -803,7 +803,6 @@ void dll::BOAT::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
 		start.x = scr_width - _width;
 		set_edges();
 	}
-	
 }
 
 dll::BOAT* dll::BOAT::create(float sx, float sy, bool hero)
@@ -906,7 +905,469 @@ dll::SHOT* dll::SHOT::create(float sx, float sy, float ex, float ey)
 
 ////////////////////////////////////////
 
+// EVIL class **************************
 
+dll::EVIL::EVIL(evils _what, float _sx, float _sy) :PROTON(_sx, _sy)
+{
+	type = _what;
+
+	switch (type)
+	{
+	case evils::evil1:
+		new_dims(132.0f, 115.0f);
+		frame_delay = 13;
+		max_frames = 5;
+		attack_delay = 70;
+		_speed = 1.1f;
+		lifes = 100;
+		view_range = 250.0f;
+		attack_range = 150.0f;
+		armor = 2;
+		damage = 20;
+		break;
+
+	case evils::evil2:
+		new_dims(150.0f, 175.0f);
+		frame_delay = 12;
+		max_frames = 6;
+		attack_delay = 85;
+		_speed = 0.8f;
+		lifes = 140;
+		view_range = 280.0f;
+		attack_range = 180.0f;
+		armor = 4;
+		damage = 40;
+		break;
+
+	case evils::evil3:
+		new_dims(100.0f, 108.0f);
+		frame_delay = 20;
+		max_frames = 3;
+		attack_delay = 50;
+		_speed = 1.3f;
+		lifes = 100;
+		view_range = 250.0f;
+		attack_range = 120.0f;
+		armor = 1;
+		damage = 10;
+		break;
+
+	case evils::evil4:
+		new_dims(120.0f, 80.0f);
+		frame_delay = 15;
+		max_frames = 4;
+		attack_delay = 50;
+		_speed = 1.5f;
+		lifes = 80;
+		view_range = 200.0f;
+		attack_range = 100.0f;
+		armor = 0;
+		damage = 8;
+		break;
+	}
+
+	max_frame_delay = frame_delay;
+	max_attack_delay = attack_delay;
+
+	if (start.x > scr_width / 2.0f)
+	{
+		if (start.y < scr_height / 2.0f)
+		{
+			dir = dirs::down_left;
+			set_path(start.x - 300.0f, ground);
+		}
+		else if (start.y > scr_height / 2.0f)
+		{
+			dir = dirs::up_left;
+			set_path(start.x - 300.0f, sky);
+		}
+		else
+		{
+			dir = dirs::left;
+			set_path(start.x - 300.0f, start.y);
+		}
+	}
+	else if (start.x < scr_width / 2.0f)
+	{
+		if (start.y < scr_height / 2.0f)
+		{
+			dir = dirs::down_right;
+			set_path(start.x + 300.0f, ground);
+		}
+		else if (start.y > scr_height / 2.0f)
+		{
+			dir = dirs::up_right;
+			set_path(start.x - 300.0f, sky);
+		}
+		else
+		{
+			dir = dirs::right;
+			set_path(start.x + 300.0f, start.y);
+		}
+	}
+	else
+	{
+		if (start.y < scr_height / 2.0f)
+		{
+			dir = dirs::down_left;
+			set_path(start.x - 300.0f, ground);
+		}
+		else
+		{
+			dir = dirs::up_right;
+			set_path(start.x + 300.0f, sky);
+		}
+	}
+}
+	
+bool dll::EVIL::obstacle_bumped(BAG<FRECT>& obstacles)
+{
+	if (obstacles.empty())return false;
+	else if (obstacles.size() == 1)
+	{
+		if (Intersect(FRECT{ start.x,start.y,end.x,end.y }, obstacles[0]))return true;
+	}
+	else
+	{
+		for (size_t i = 0; i < obstacles.size(); ++i)
+		{
+			if (Intersect(FRECT{ start.x,start.y,end.x,end.y }, obstacles[i]))return true;
+		}
+	}
+
+	return false;
+}
+
+void dll::EVIL::patrol(float gear, BAG<FRECT>& field_obst)
+{
+	float my_speed = _speed + gear / 10.0f;
+
+	if (move_ex > center.x)
+	{
+		if (move_ey > center.y)dir = dirs::down_right;
+		else if (move_ey < center.y)dir = dirs::up_right;
+		else dir = dirs::right;
+	}
+	else if (move_ex < center.x)
+	{
+		if (move_ey > center.y)dir = dirs::down_left;
+		else if (move_ey < center.y)dir = dirs::up_left;
+		else dir = dirs::left;
+	}
+	else
+	{
+		if (move_ey > center.y)dir = dirs::down;
+		else dir = dirs::up;
+	}
+
+	if (hor_dir)
+	{
+		if (move_ex > move_sx)
+		{
+			if (end.x + my_speed <= move_ex)
+			{
+				start.x += my_speed;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x -= my_speed;
+					set_edges();
+
+					set_path(start.x - 300.0f, move_ey);
+				}
+			}
+			else set_path(start.x - 300.0f, move_ey);
+		}
+		else if (move_ex < move_sx)
+		{
+			if (start.x - my_speed >= move_ex)
+			{
+				start.x -= my_speed;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x += my_speed;
+					set_edges();
+					set_path(start.x + 300.0f, move_ey);
+				}
+			}
+			else set_path(start.x + 300.0f, move_ey);
+		}
+		else
+		{
+			if (center.y >= scr_height / 2.0f)set_path(start.x + 300.0f, sky);
+			else set_path(start.x - 300.0f, ground);
+		}
+	}
+	else if (ver_dir)
+	{
+		if (move_ey > move_sy)
+		{
+			if (end.y + my_speed <= ground)
+			{
+				start.y += my_speed;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.y -= my_speed;
+					set_edges();
+					set_path(start.x, sky);
+				}
+			}
+			else set_path(start.x, sky);
+		}
+		else if (move_ey < move_sy)
+		{
+			if (start.y - my_speed >= sky)
+			{
+				start.y -= my_speed;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.y += my_speed;
+					set_edges();
+					set_path(start.x, ground);
+				}
+			}
+			else set_path(start.x, ground);
+		}
+		else
+		{
+			if (center.x= scr_width / 2.0f)set_path(start.x + 300.0f, sky);
+			else set_path(start.x - 300.0f, ground);
+		}
+	}
+	else
+	{
+		if (move_ex > move_sx)
+		{
+			if (end.x + my_speed <= move_ex)
+			{
+				start.x += my_speed;
+				start.y = start.x * slope + intercept;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x -= my_speed;
+					start.y = start.x * slope + intercept;
+					set_edges();
+					set_path(start.x - 300.0f, move_ey);
+				}
+			}
+			else set_path(start.x - 300.0f, move_ey);
+		}
+		else if (move_ex < move_sx)
+		{
+			if (start.x - my_speed >= move_ex)
+			{
+				start.x -= my_speed;
+				start.y = start.x * slope + intercept;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x += my_speed;
+					start.y = start.x * slope + intercept;
+					set_edges();
+					set_path(start.x + 300.0f, move_ey);
+				}
+			}
+			else set_path(start.x + 300.0f, move_ey);
+		}
+		else
+		{
+			if (center.y >= scr_height / 2.0f)set_path(start.x + 300.0f, sky);
+			else set_path(start.x - 300.0f, ground);
+		}
+	}	
+}
+
+bool dll::EVIL::move(float _ex, float _ey, float gear, BAG<FRECT>& field_obst)
+{
+	float my_speed = _speed + gear / 10.0f;
+
+	set_path(_ex, _ey);
+
+	if (move_ex > center.x)
+	{
+		if (move_ey > center.y)dir = dirs::down_right;
+		else if (move_ey < center.y)dir = dirs::up_right;
+		else dir = dirs::right;
+	}
+	else if (move_ex < center.x)
+	{
+		if (move_ey > center.y)dir = dirs::down_left;
+		else if (move_ey < center.y)dir = dirs::up_left;
+		else dir = dirs::left;
+	}
+	else
+	{
+		if (move_ey > center.y)dir = dirs::down;
+		else dir = dirs::up;
+	}
+
+	if (hor_dir)
+	{
+		if (move_ex > move_sx)
+		{
+			if (end.x + my_speed <= move_ex)
+			{
+				start.x += my_speed;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x -= my_speed;
+					set_edges();
+
+					set_path(start.x - 300.0f, move_ey);
+				}
+			}
+			else set_path(start.x - 300.0f, move_ey);
+		}
+		else if (move_ex < move_sx)
+		{
+			if (start.x - my_speed >= move_ex)
+			{
+				start.x -= my_speed;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x += my_speed;
+					set_edges();
+					set_path(start.x + 300.0f, move_ey);
+				}
+			}
+			else set_path(start.x + 300.0f, move_ey);
+		}
+		else
+		{
+			if (center.y >= scr_height / 2.0f)set_path(start.x + 300.0f, sky);
+			else set_path(start.x - 300.0f, ground);
+		}
+	}
+	else if (ver_dir)
+	{
+		if (move_ey > move_sy)
+		{
+			if (end.y + my_speed <= ground)
+			{
+				start.y += my_speed;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.y -= my_speed;
+					set_edges();
+					set_path(start.x, sky);
+				}
+			}
+			else set_path(start.x, sky);
+		}
+		else if (move_ey < move_sy)
+		{
+			if (start.y - my_speed >= sky)
+			{
+				start.y -= my_speed;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.y += my_speed;
+					set_edges();
+					set_path(start.x, ground);
+				}
+			}
+			else set_path(start.x, ground);
+		}
+		else
+		{
+			if (center.x = scr_width / 2.0f)set_path(start.x + 300.0f, sky);
+			else set_path(start.x - 300.0f, ground);
+		}
+	}
+	else
+	{
+		if (move_ex > move_sx)
+		{
+			if (end.x + my_speed <= move_ex)
+			{
+				start.x += my_speed;
+				start.y = start.x * slope + intercept;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x -= my_speed;
+					start.y = start.x * slope + intercept;
+					set_edges();
+					set_path(start.x - 300.0f, move_ey);
+				}
+			}
+			else set_path(start.x - 300.0f, move_ey);
+		}
+		else if (move_ex < move_sx)
+		{
+			if (start.x - my_speed >= move_ex)
+			{
+				start.x -= my_speed;
+				start.y = start.x * slope + intercept;
+				set_edges();
+
+				if (obstacle_bumped(field_obst))
+				{
+					start.x += my_speed;
+					start.y = start.x * slope + intercept;
+					set_edges();
+					set_path(start.x + 300.0f, move_ey);
+				}
+			}
+			else set_path(start.x + 300.0f, move_ey);
+		}
+		else
+		{
+			if (center.y >= scr_height / 2.0f)set_path(start.x + 300.0f, sky);
+			else set_path(start.x - 300.0f, ground);
+		}
+	}
+
+	if (end.x <= -scr_width || start.x >= 2.0f * scr_width || end.y <= -scr_height || start.y >= 2.0f * scr_height)return false;
+
+	return true;
+}
+
+int dll::EVIL::attack()
+{
+	--attack_delay;
+	if (attack_delay <= 0)
+	{
+		attack_delay = max_attack_delay;
+		return damage;
+	}
+	return 0;
+}
+
+void dll::EVIL::Release()
+{
+	delete this;
+}
+
+dll::EVIL* dll::EVIL::create(evils what, float sx, float sy)
+{
+	EVIL* ret{ nullptr };
+
+	ret = new EVIL(what, sx, sy);
+
+	return ret;
+}
+
+////////////////////////////////////////
 
 
 

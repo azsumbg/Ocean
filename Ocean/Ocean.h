@@ -590,6 +590,45 @@ namespace dll
 		static SHOT* create(float sx, float sy, float ex, float ey);
 	};
 
+	class OCEAN_API EVIL:public PROTON
+	{
+	private:
+		float _speed{ 0.8f };
+
+		int frame{ 0 };
+		int max_frames{ 0 };
+		int frame_delay{ 0 };
+		int max_frame_delay{ 0 };
+
+		int attack_delay{ 0 };
+		int max_attack_delay{ 0 };
+
+		EVIL(evils _what, float _sx, float _sy);
+
+	public:
+		evils type{ evils::evil1 };
+
+		int lifes{ 0 };
+		int max_lifes{ 0 };
+
+		int damage{ 0 };
+		int armor{ 0 };
+
+		float view_range{ 0 };
+		float attack_range{ 0 };
+
+		bool obstacle_bumped(BAG<FRECT>& obstacles);
+
+		void patrol(float gear, BAG<FRECT>& field_obst);
+		bool move(float _ex, float _ey, float gear, BAG<FRECT>& field_obst);
+
+		int attack();
+
+		void Release();
+
+		static EVIL* create(evils what, float sx, float sy);
+	};
+
 	/////////////////////////////////////////////////////////
 
 	// SORT FUNCTION *************************************

@@ -209,7 +209,7 @@ dll::FIELD::FIELD()
 
 	for (int rows = 0; rows < 3; ++rows)
 	{
-		for (int cols = 0; cols < 3; cols)
+		for (int cols = 0; cols < 3; ++cols)
 		{
 			ocean_tiles[rows][cols].left = x_pos;
 			ocean_tiles[rows][cols].right = x_pos + scr_width;
@@ -219,6 +219,7 @@ dll::FIELD::FIELD()
 			x_pos += scr_width;
 		}
 
+		x_pos = -scr_width;
 		y_pos += scr_height;
 	}
 }

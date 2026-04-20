@@ -127,8 +127,8 @@ void dll::PROTON::set_path(float _ex, float _ey)
 	move_sx = start.x;
 	move_sy = start.y;
 
-	move_ex = end.x;
-	move_ey = end.y;
+	move_ex = _ex;
+	move_ey = _ey;
 
 	if (move_sx == move_ex || (move_ex > start.x && move_ex <= end.x))
 	{
@@ -352,7 +352,8 @@ void dll::HERO::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
 	else
 	{
 		if (ey > center.y)dir = dirs::down;
-		else dir = dirs::up;
+		else if (ey < center.y) dir = dirs::up;
+		else dir = dirs::stop;
 	}
 
 	if (hor_dir)
@@ -368,8 +369,12 @@ void dll::HERO::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
 				{
 					start.x -= my_speed;
 					set_edges();
+					dir = dirs::stop;
 				}
 			}
+			else dir = dirs::stop;
+
+			if (center.x >= move_ex)dir = dirs::stop;
 		}
 		else if (move_ex < move_sx)
 		{
@@ -382,9 +387,14 @@ void dll::HERO::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
 				{
 					start.x += my_speed;
 					set_edges();
+					dir = dirs::stop;
 				}
 			}
+			else dir = dirs::stop;
+
+			if (center.x <= move_ex)dir = dirs::stop;
 		}
+		else dir = dirs::stop;
 	}
 	else if (ver_dir)
 	{
@@ -399,8 +409,12 @@ void dll::HERO::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
 				{
 					start.y -= my_speed;
 					set_edges();
+					dir = dirs::stop;
 				}
+				
+				if (center.y >= move_ey)dir = dirs::stop;
 			}
+			else dir = dirs::stop;
 		}
 		else if (move_ey < move_sy)
 		{
@@ -413,9 +427,14 @@ void dll::HERO::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
 				{
 					start.y += my_speed;
 					set_edges();
+					dir = dirs::stop;
 				}
 			}
+			else dir = dirs::stop;
+
+			if (center.y <= move_ey)dir = dirs::stop;
 		}
+		else dir = dirs::stop;
 	}
 	else
 	{
@@ -432,7 +451,15 @@ void dll::HERO::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
 					start.x -= my_speed;
 					start.y = start.x * slope + intercept;
 					set_edges();
+					dir = dirs::stop;
 				}
+			}
+			else dir = dirs::stop;
+
+			if (center.x >= move_ex)
+			{
+				if ((move_ey > move_sy && center.y >= move_ey) || (move_ey < move_sy && center.y <= move_ey))
+					dir = dirs::stop;
 			}
 		}
 		else if (move_ex < move_sx)
@@ -448,7 +475,15 @@ void dll::HERO::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
 					start.x += my_speed;
 					start.y = start.x * slope + intercept;
 					set_edges();
+					dir = dirs::stop;
 				}
+			}
+			else dir = dirs::stop;
+
+			if (center.x <= move_ex)
+			{
+				if ((move_ey > move_sy && center.y >= move_ey) || (move_ey < move_sy && center.y <= move_ey))
+					dir = dirs::stop;
 			}
 		}
 	}
@@ -457,21 +492,25 @@ void dll::HERO::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
 	{
 		start.y = sky;
 		set_edges();
+		dir = dirs::stop;
 	}
 	if (end.y > ground)
 	{
 		start.y = ground - _height;
 		set_edges();
+		dir = dirs::stop;
 	}
 	if (start.x < 0)
 	{
 		start.x = 0;
 		set_edges();
+		dir = dirs::stop;
 	}
 	if (end.x > scr_width)
 	{
 		start.x = scr_width - _width;
 		set_edges();
+		dir = dirs::stop;
 	}
 }
 
@@ -616,6 +655,11 @@ bool dll::OBSTACLE::in_view_port(FRECT what)const
 		|| what.up >= _ViewPort.down || what.down <= _ViewPort.up))return true;
 
 	return false;
+}
+
+void dll::OBSTACLE::Release()
+{
+	delete this;
 }
 
 dll::OBSTACLE* dll::OBSTACLE::create(obstacles what, float sx, float sy)

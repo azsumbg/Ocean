@@ -552,6 +552,8 @@ namespace dll
 
 		bool in_view_port(FRECT what)const;
 
+		void Release();
+
 		static OBSTACLE* create(obstacles what, float sx, float sy);
 	};
 

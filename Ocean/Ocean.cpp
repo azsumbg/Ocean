@@ -68,7 +68,7 @@ dll::PROTON::PROTON()
 	_height = 1.0f;
 
 	x_rad = _width / 2.0f;
-	y_rad = _height * 2.0f;
+	y_rad = _height / 2.0f;
 
 	end.x = start.x + _width;
 	end.y = start.y + _height;
@@ -85,7 +85,7 @@ dll::PROTON::PROTON(float _sx, float _sy)
 	_height = 1.0f;
 
 	x_rad = _width / 2.0f;
-	y_rad = _height * 2.0f;
+	y_rad = _height / 2.0f;
 
 	end.x = start.x + _width;
 	end.y = start.y + _height;
@@ -102,7 +102,7 @@ dll::PROTON::PROTON(float _sx, float _sy, float _swidth, float _sheight)
 	_height = _sheight;
 	
 	x_rad = _width / 2.0f;
-	y_rad = _height * 2.0f;
+	y_rad = _height / 2.0f;
 
 	end.x = start.x + _width;
 	end.y = start.y + _height;
@@ -159,7 +159,7 @@ void dll::PROTON::set_height(float _new_height)
 {
 	_height = _new_height;
 
-	y_rad = _height * 2.0f;
+	y_rad = _height / 2.0f;
 
 	end.y = start.y + _height;
 

@@ -171,7 +171,7 @@ void dll::PROTON::new_dims(float _new_width, float _new_height)
 	_height = _new_height;
 
 	x_rad = _width / 2.0f;
-	y_rad = _height * 2.0f;
+	y_rad = _height / 2.0f;
 
 	end.x = start.x + _width;
 	end.y = start.y + _height;
@@ -394,7 +394,6 @@ void dll::HERO::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
 
 			if (center.x <= move_ex)dir = dirs::stop;
 		}
-		else dir = dirs::stop;
 	}
 	else if (ver_dir)
 	{
@@ -434,7 +433,6 @@ void dll::HERO::move(float ex, float ey, float gear, BAG<FRECT>& field_obst)
 
 			if (center.y <= move_ey)dir = dirs::stop;
 		}
-		else dir = dirs::stop;
 	}
 	else
 	{

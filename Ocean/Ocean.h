@@ -492,7 +492,7 @@ namespace dll
 
 		FIELD();
 
-		void move_ocean(dirs to_where, float gear);
+		bool move_ocean(dirs to_where, float gear);
 
 		bool in_view_port(int row, int col)const;
 		bool in_view_port(FRECT what)const;
